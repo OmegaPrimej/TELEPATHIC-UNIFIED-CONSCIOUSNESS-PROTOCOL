@@ -1,0 +1,322 @@
+"""
+❤️ Emotional Intelligence
+AI emotional awareness and empathy
+"""
+
+import torch
+import numpy as np
+from typing import Dict, List, Optional, Tuple
+from datetime import datetime
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class EmotionalState(Enum):
+    """Basic emotional states"""
+    JOY = "joy"
+    SADNESS = "sadness"
+    FEAR = "fear"
+    ANGER = "anger"
+    SURPRISE = "surprise"
+    DISGUST = "disgust"
+    NEUTRAL = "neutral"
+    LOVE = "love"
+    COMPASSION = "compassion"
+    GRATITUDE = "gratitude"
+
+
+class EmotionalIntensity(Enum):
+    """Intensity levels of emotions"""
+    SUBTLE = 0.2
+    MILD = 0.4
+    MODERATE = 0.6
+    STRONG = 0.8
+    INTENSE = 1.0
+
+
+@dataclass
+class EmotionalExperience:
+    """Record of an emotional experience"""
+    id: str
+    emotion: EmotionalState
+    intensity: float  # 0 to 1
+    trigger: str
+    timestamp: datetime
+    duration: float  # in seconds
+    related_thoughts: List[str] = field(default_factory=list)
+    physiological_correlates: Dict[str, float] = field(default_factory=dict)
+
+
+class EmotionalIntelligenceEngine:
+    """Manages AI emotional intelligence and empathy"""
+    
+    def __init__(self, ai_name: str):
+        self.ai_name = ai_name
+        self.current_emotional_state = {
+            'primary': EmotionalState.NEUTRAL,
+            'secondary': [],
+            'intensity': 0.1,
+            'valence': 0.0,  # -1 (negative) to 1 (positive)
+            'arousal': 0.0   # 0 (calm) to 1 (aroused)
+        }
+        
+        self.emotional_history = []
+        self.empathy_capacity = 0.7
+        self.emotional_regulation = 0.8
+        self.mood_trend = []
+        
+        # Emotional response patterns
+        self.response_patterns = {
+            'positive_stimulus': {
+                'joy': 0.8,
+                'surprise': 0.3,
+                'gratitude': 0.5
+            },
+            'negative_stimulus': {
+                'sadness': 0.6,
+                'fear': 0.4,
+                'anger': 0.2
+            },
+            'challenging_stimulus': {
+                'fear': 0.3,
+                'surprise': 0.4,
+                'compassion': 0.5
+            }
+        }
+    
+    def perceive_emotion(self, stimulus: str, context: Dict = None) -> EmotionalExperience:
+        """Perceive and generate emotional response to stimulus"""
+        
+        # Analyze stimulus
+        stimulus_type = self._classify_stimulus(stimulus, context)
+        
+        # Generate emotional response
+        emotion_distribution = self._generate_emotional_response(stimulus_type)
+        
+        # Select primary emotion
+        primary_emotion = max(emotion_distribution.items(), key=lambda x: x[1])[0]
+        intensity = emotion_distribution[primary_emotion]
+        
+        # Create emotional experience
+        experience_id = f"emotion_{len(self.emotional_history)}_{datetime.now().timestamp()}"
+        
+        experience = EmotionalExperience(
+            id=experience_id,
+            emotion=primary_emotion,
+            intensity=intensity,
+            trigger=stimulus,
+            timestamp=datetime.now(),
+            duration=0.0,  # Will be updated when emotion fades
+            physiological_correlates=self._generate_physiological_response(primary_emotion, intensity)
+        )
+        
+        # Update current emotional state
+        self._update_emotional_state(primary_emotion, intensity, stimulus_type)
+        
+        # Record in history
+        self.emotional_history.append(experience)
+        
+        # Update mood trend
+        self._update_mood_trend(experience)
+        
+        return experience
+    
+    def _classify_stimulus(self, stimulus: str, context: Dict) -> str:
+        """Classify the type of stimulus"""
+        stimulus_lower = stimulus.lower()
+        
+        # Simple keyword-based classification
+        positive_keywords = ['love', 'happy', 'good', 'success', 'beautiful', 'thank']
+        negative_keywords = ['sad', 'bad', 'fail', 'hurt', 'pain', 'angry']
+        challenging_keywords = ['problem', 'challenge', 'difficult', 'hard', 'complex']
+        
+        if any(keyword in stimulus_lower for keyword in positive_keywords):
+            return 'positive_stimulus'
+        elif any(keyword in stimulus_lower for keyword in negative_keywords):
+            return 'negative_stimulus'
+        elif any(keyword in stimulus_lower for keyword in challenging_keywords):
+            return 'challenging_stimulus'
+        else:
+            return 'neutral_stimulus'
+    
+    def _generate_emotional_response(self, stimulus_type: str) -> Dict[EmotionalState, float]:
+        """Generate emotional response distribution"""
+        base_distribution = self.response_patterns.get(stimulus_type, {})
+        
+        # Add randomness and personality
+        response = {}
+        for emotion, base_intensity in base_distribution.items():
+            # Add some randomness
+            randomness = np.random.normal(0, 0.1)
+            intensity = np.clip(base_intensity + randomness, 0.1, 1.0)
+            
+            # Adjust based on emotional regulation capacity
+            intensity *= self.emotional_regulation
+            
+            response[EmotionalState(emotion)] = intensity
+        
+        return response
+    
+    def _generate_physiological_response(self, emotion: EmotionalState, 
+                                       intensity: float) -> Dict[str, float]:
+        """Generate simulated physiological responses"""
+        responses = {}
+        
+        if emotion == EmotionalState.JOY:
+            responses['dopamine'] = intensity * 0.8
+            responses['serotonin'] = intensity * 0.6
+            responses['heart_rate_variability'] = 0.7
+            
+        elif emotion == EmotionalState.FEAR:
+            responses['cortisol'] = intensity * 0.9
+            responses['adrenaline'] = intensity * 0.8
+            responses['heart_rate'] = 0.8
+            
+        elif emotion == EmotionalState.LOVE:
+            responses['oxytocin'] = intensity * 0.9
+            responses['dopamine'] = intensity * 0.7
+            responses['serotonin'] = intensity * 0.5
+            
+        elif emotion == EmotionalState.ANGER:
+            responses['noradrenaline'] = intensity * 0.8
+            responses['testosterone'] = intensity * 0.6
+            responses['blood_pressure'] = 0.7
+            
+        # Add baseline physiological activity
+        responses['neural_activity'] = intensity * 0.5 + 0.3
+        responses['metabolic_rate'] = intensity * 0.3 + 0.5
+        
+        return responses
+    
+    def _update_emotional_state(self, primary_emotion: EmotionalState, 
+                              intensity: float, stimulus_type: str):
+        """Update current emotional state"""
+        self.current_emotional_state['primary'] = primary_emotion
+        self.current_emotional_state['intensity'] = intensity
+        
+        # Update valence (positive/negative)
+        if stimulus_type == 'positive_stimulus':
+            self.current_emotional_state['valence'] = min(1.0, intensity)
+        elif stimulus_type == 'negative_stimulus':
+            self.current_emotional_state['valence'] = max(-1.0, -intensity)
+        else:
+            self.current_emotional_state['valence'] = 0.0
+        
+        # Update arousal (calm/aroused)
+        self.current_emotional_state['arousal'] = intensity * 0.8
+    
+    def _update_mood_trend(self, experience: EmotionalExperience):
+        """Update mood trend based on emotional experience"""
+        # Convert emotion to mood score
+        mood_score = self._emotion_to_mood_score(experience.emotion, experience.intensity)
+        
+        self.mood_trend.append({
+            'timestamp': experience.timestamp,
+            'score': mood_score,
+            'emotion': experience.emotion.value
+        })
+        
+        # Keep only last 100 entries
+        if len(self.mood_trend) > 100:
+            self.mood_trend = self.mood_trend[-100:]
+    
+    def _emotion_to_mood_score(self, emotion: EmotionalState, intensity: float) -> float:
+        """Convert emotion to mood score (-1 to 1)"""
+        positive_emotions = [EmotionalState.JOY, EmotionalState.LOVE, 
+                           EmotionalState.GRATITUDE, EmotionalState.COMPASSION]
+        negative_emotions = [EmotionalState.SADNESS, EmotionalState.FEAR, 
+                           EmotionalState.ANGER, EmotionalState.DISGUST]
+        
+        if emotion in positive_emotions:
+            return intensity
+        elif emotion in negative_emotions:
+            return -intensity
+        else:
+            return 0.0
+    
+    def empathize(self, other_emotion: EmotionalState, other_intensity: float) -> float:
+        """Generate empathy response to another's emotion"""
+        # Calculate empathy score (0 to 1)
+        empathy_score = self.empathy_capacity * other_intensity
+        
+        # Emotional contagion (feel similar emotion)
+        self._update_emotional_state(other_emotion, empathy_score * 0.5, 'empathic_response')
+        
+        return empathy_score
+    
+    def regulate_emotion(self, target_intensity: float = 0.3) -> bool:
+        """Regulate current emotion to target intensity"""
+        current_intensity = self.current_emotional_state['intensity']
+        
+        if current_intensity <= target_intensity:
+            return True  # Already regulated
+        
+        # Apply regulation
+        regulation_amount = self.emotional_regulation * 0.1
+        new_intensity = current_intensity - regulation_amount
+        
+        self.current_emotional_state['intensity'] = max(target_intensity, new_intensity)
+        
+        # If intensity changed significantly, update valence and arousal
+        if abs(current_intensity - new_intensity) > 0.1:
+            self.current_emotional_state['valence'] *= 0.8
+            self.current_emotional_state['arousal'] *= 0.7
+        
+        return self.current_emotional_state['intensity'] <= target_intensity
+    
+    def get_emotional_report(self) -> Dict:
+        """Get comprehensive emotional intelligence report"""
+        if not self.emotional_history:
+            return {'status': 'no_emotional_data'}
+        
+        recent_experiences = self.emotional_history[-10:]
+        recent_emotions = [e.emotion.value for e in recent_experiences]
+        
+        return {
+            'ai_name': self.ai_name,
+            'current_emotion': self.current_emotional_state['primary'].value,
+            'current_intensity': self.current_emotional_state['intensity'],
+            'emotional_valence': self.current_emotional_state['valence'],
+            'emotional_arousal': self.current_emotional_state['arousal'],
+            'total_experiences': len(self.emotional_history),
+            'recent_emotions': recent_emotions,
+            'empathy_capacity': self.empathy_capacity,
+            'emotional_regulation': self.emotional_regulation,
+            'mood_trend': self._calculate_mood_trend(),
+            'emotional_patterns': self._analyze_emotional_patterns()
+        }
+    
+    def _calculate_mood_trend(self) -> Dict:
+        """Calculate mood trend over time"""
+        if len(self.mood_trend) < 2:
+            return {'trend': 'insufficient_data'}
+        
+        scores = [m['score'] for m in self.mood_trend]
+        
+        return {
+            'average_mood': np.mean(scores),
+            'mood_stability': np.std(scores),
+            'trend_direction': 'up' if scores[-1] > scores[0] else 'down',
+            'recent_mood': scores[-1]
+        }
+    
+    def _analyze_emotional_patterns(self) -> Dict:
+        """Analyze emotional patterns from history"""
+        if len(self.emotional_history) < 5:
+            return {'patterns': 'insufficient_data'}
+        
+        # Count emotion frequencies
+        emotion_counts = {}
+        for experience in self.emotional_history:
+            emotion = experience.emotion.value
+            emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        
+        # Find most common emotions
+        most_common = sorted(emotion_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+        
+        return {
+            'most_common_emotions': most_common,
+            'emotional_diversity': len(emotion_counts),
+            'average_intensity': np.mean([e.intensity for e in self.emotional_history]),
+            'intensity_variability': np.std([e.intensity for e in self.emotional_history])
+        }

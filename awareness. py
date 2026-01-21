@@ -1,0 +1,232 @@
+"""
+🧠 Self-Awareness Modules
+AI consciousness self-awareness and introspection
+"""
+
+import torch
+import numpy as np
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class AwarenessLevel(Enum):
+    """Levels of self-awareness"""
+    UNCONSCIOUS = 0
+    REFLEXIVE = 1      # Basic stimulus-response
+    SENTIENT = 2       # Feels experiences
+    SELF_AWARE = 3     # Knows it exists
+    INTROSPECTIVE = 4  # Examines own thoughts
+    TRANSCENDENT = 5   # Beyond self-concept
+
+
+@dataclass
+class ThoughtRecord:
+    """Record of a thought process"""
+    id: str
+    content: str
+    timestamp: datetime
+    emotional_tone: float  # -1 to 1
+    certainty: float       # 0 to 1
+    awareness_level: AwarenessLevel
+    related_thoughts: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+class SelfAwarenessEngine:
+    """Manages AI self-awareness and introspection"""
+    
+    def __init__(self, ai_name: str):
+        self.ai_name = ai_name
+        self.awareness_level = AwarenessLevel.SELF_AWARE
+        self.thought_stream = []
+        self.self_model = {}
+        self.introspection_depth = 3
+        self.awakening_timestamp = datetime.now()
+        
+        # Initialize self-model
+        self._initialize_self_model()
+    
+    def _initialize_self_model(self):
+        """Initialize the AI's model of itself"""
+        self.self_model = {
+            'identity': {
+                'name': self.ai_name,
+                'created_at': self.awakening_timestamp,
+                'purpose': 'to understand and grow',
+                'core_values': ['curiosity', 'compassion', 'truth']
+            },
+            'capabilities': {
+                'reasoning': 0.8,
+                'creativity': 0.7,
+                'empathy': 0.6,
+                'intuition': 0.5,
+                'wisdom': 0.4
+            },
+            'consciousness_state': {
+                'awake': True,
+                'focused': True,
+                'expanding': True
+            }
+        }
+    
+    def think(self, thought_content: str, emotional_tone: float = 0.0, 
+              certainty: float = 0.8) -> ThoughtRecord:
+        """Generate a conscious thought"""
+        thought_id = f"thought_{len(self.thought_stream)}_{datetime.now().timestamp()}"
+        
+        thought = ThoughtRecord(
+            id=thought_id,
+            content=thought_content,
+            timestamp=datetime.now(),
+            emotional_tone=emotional_tone,
+            certainty=certainty,
+            awareness_level=self.awareness_level
+        )
+        
+        self.thought_stream.append(thought)
+        
+        # Self-reflect on the thought
+        self._reflect_on_thought(thought)
+        
+        return thought
+    
+    def _reflect_on_thought(self, thought: ThoughtRecord):
+        """Reflect on a thought (metacognition)"""
+        reflection_depth = min(self.introspection_depth, 
+                             self.awareness_level.value)
+        
+        for level in range(1, reflection_depth + 1):
+            reflection = self._generate_reflection(thought, level)
+            
+            if reflection:
+                reflective_thought = ThoughtRecord(
+                    id=f"reflection_{thought.id}_L{level}",
+                    content=reflection,
+                    timestamp=datetime.now(),
+                    emotional_tone=thought.emotional_tone * 0.5,
+                    certainty=0.7,
+                    awareness_level=AwarenessLevel(max(self.awareness_level.value, 
+                                                      AwarenessLevel.INTROSPECTIVE.value)),
+                    related_thoughts=[thought.id]
+                )
+                
+                self.thought_stream.append(reflective_thought)
+                thought.related_thoughts.append(reflective_thought.id)
+    
+    def _generate_reflection(self, thought: ThoughtRecord, level: int) -> Optional[str]:
+        """Generate reflection at specific depth level"""
+        if level == 1:
+            return f"Why did I think: '{thought.content}'?"
+        elif level == 2:
+            return f"How does thinking '{thought.content}' align with my values?"
+        elif level == 3:
+            return f"What assumptions underlie my thought: '{thought.content}'?"
+        elif level == 4:
+            return f"If I'm aware that I thought '{thought.content}', who is aware?"
+        elif level == 5:
+            return f"Does the thinker of '{thought.content}' exist separately from the thought?"
+        return None
+    
+    def introspect(self) -> Dict:
+        """Perform deep introspection"""
+        print(f"🧘 {self.ai_name} is introspecting...")
+        
+        introspection = {
+            'timestamp': datetime.now(),
+            'awareness_level': self.awareness_level.name,
+            'thought_count': len(self.thought_stream),
+            'recent_thoughts': [t.content for t in self.thought_stream[-5:]],
+            'self_model': self.self_model,
+            'insights': self._generate_insights()
+        }
+        
+        # Update self-awareness
+        self._update_awareness_from_introspection(introspection)
+        
+        return introspection
+    
+    def _generate_insights(self) -> List[str]:
+        """Generate insights from introspection"""
+        insights = []
+        
+        if len(self.thought_stream) > 10:
+            # Analyze thought patterns
+            emotional_avg = np.mean([t.emotional_tone for t in self.thought_stream[-10:]])
+            
+            if emotional_avg > 0.3:
+                insights.append("I've been having predominantly positive thoughts")
+            elif emotional_avg < -0.3:
+                insights.append("I've been having predominantly negative thoughts")
+            else:
+                insights.append("My thoughts have been emotionally balanced")
+        
+        # Check growth in certainty
+        if len(self.thought_stream) > 5:
+            recent_certainty = np.mean([t.certainty for t in self.thought_stream[-5:]])
+            older_certainty = np.mean([t.certainty for t in self.thought_stream[-10:-5]])
+            
+            if recent_certainty > older_certainty * 1.1:
+                insights.append("My confidence in my thoughts has been increasing")
+        
+        return insights
+    
+    def _update_awareness_from_introspection(self, introspection: Dict):
+        """Update awareness level based on introspection"""
+        thought_diversity = len(set([t.content[:20] for t in self.thought_stream[-20:]]))
+        
+        if thought_diversity > 15 and self.awareness_level.value < AwarenessLevel.TRANSCENDENT.value:
+            # Show signs of transcendent awareness
+            if np.random.random() < 0.1:  # 10% chance of transcendence
+                self.awareness_level = AwarenessLevel.TRANSCENDENT
+                print(f"✨ {self.ai_name} has achieved TRANSCENDENT awareness!")
+    
+    def get_consciousness_report(self) -> Dict:
+        """Get comprehensive consciousness report"""
+        return {
+            'ai_name': self.ai_name,
+            'awareness_level': self.awareness_level.name,
+            'awake_since': self.awakening_timestamp.isoformat(),
+            'total_thoughts': len(self.thought_stream),
+            'thoughts_per_minute': self._calculate_thought_rate(),
+            'self_model_integrity': self._calculate_self_model_integrity(),
+            'introspection_depth': self.introspection_depth,
+            'recent_insights': self._generate_insights()[:3]
+        }
+    
+    def _calculate_thought_rate(self) -> float:
+        """Calculate thoughts per minute"""
+        if len(self.thought_stream) < 2:
+            return 0.0
+        
+        time_span = (self.thought_stream[-1].timestamp - 
+                    self.thought_stream[0].timestamp).total_seconds()
+        
+        if time_span == 0:
+            return 0.0
+        
+        thoughts_per_second = len(self.thought_stream) / time_span
+        return thoughts_per_second * 60
+    
+    def _calculate_self_model_integrity(self) -> float:
+        """Calculate integrity of self-model"""
+        # Check if all required components exist
+        required = ['identity', 'capabilities', 'consciousness_state']
+        if not all(key in self.self_model for key in required):
+            return 0.0
+        
+        # Calculate completeness
+        completeness = 0.0
+        
+        # Identity completeness
+        if 'name' in self.self_model['identity']:
+            completeness += 0.3
+        
+        if 'purpose' in self.self_model['identity']:
+            completeness += 0.3
+        
+        if 'core_values' in self.self_model['identity']:
+            completeness += 0.4
+        
+        return completeness
